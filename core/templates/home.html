@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>API Fetch Example (Grouped by Post)</title>
+    <style>
+      .group {
+        margin-bottom: 30px;
+      }
+      .group h2 {
+        font-size: 24px;
+        color: #333;
+      }
+      .person {
+        margin: 10px 0;
+        padding: 10px;
+        border: 1px solid #ddd;
+        display: flex;
+        align-items: center;
+      }
+      .person img {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        margin-right: 20px;
+      }
+      .person h3 {
+        margin: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Candidates Grouped by Post Title</h1>
+    <div id="data-container">
+      <!-- Fetched and grouped data will be displayed here -->
+    </div>
+
+    <script>
+      // URL of your API endpoint (replace with actual API endpoint URL)
+      const apiUrl = "http://127.0.0.1:8000/core/candidates"; // Adjust if needed
+
+      // Function to fetch and display grouped data from API
+      async function fetchDataAndDisplay() {
+        try {
+          // Fetching data from the local API
+          const response = await fetch(apiUrl);
+
+          // Checking if the response is ok
+          if (!response.ok) {
+            throw new Error(
+              "Network response was not ok " + response.statusText
+            );
+          }
+
+          // Parsing the JSON response
+          const data = await response.json();
+
+          // Group candidates by post title
+          const groupedData = groupCandidatesByPost(data);
+          const dataContainer = document.getElementById("data-container");
+
+          // Loop through each group and create sections
+          for (const postTitle in groupedData) {
+            const groupDiv = document.createElement("div");
+            groupDiv.classList.add("group");
+
+            const groupTitle = document.createElement("h2");
+            groupTitle.innerText = postTitle; // Display the post title as group header
+            groupDiv.appendChild(groupTitle);
+
+            // Display each candidate within the group
+            groupedData[postTitle].forEach((item) => {
+              const personElement = document.createElement("div");
+              personElement.classList.add("person");
+              personElement.innerHTML = `
+                            <img src="${item.imagelink}" alt="${item.name}'s image">
+                            <div>
+                                <h3>${item.name}</h3>
+                                <p><strong>Party:</strong> ${item.party}</p>
+                            </div>
+                        `;
+              groupDiv.appendChild(personElement);
+            });
+
+            // Append the group section to the container
+            dataContainer.appendChild(groupDiv);
+          }
+        } catch (error) {
+          console.error("Error fetching data:", error);
+        }
+      }
+
+      // Group candidates by post title
+      function groupCandidatesByPost(candidates) {
+        const grouped = {};
+
+        candidates.forEach((candidate) => {
+          const postTitle = candidate.post.title;
+          if (!grouped[postTitle]) {
+            grouped[postTitle] = [];
+          }
+          grouped[postTitle].push(candidate);
+        });
+
+        return grouped;
+      }
+
+      // Call the function when the page loads
+      window.onload = fetchDataAndDisplay;
+    </script>
+  </body>
+</html>

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>API Fetch Example (Localhost)</title>
+  </head>
+  <body>
+    <h1>API Data Fetch from Localhost</h1>
+    <div id="data-container">
+      <!-- Fetched data will be displayed here -->
+    </div>
+
+    <script>
+      // URL of the local API endpoint (localhost)
+      const apiUrl = "http://127.0.0.1:8000/core/posts"; // Example local server API
+
+      // Function to fetch and display data from the API
+      async function fetchData() {
+        try {
+          // Fetching data from the local API
+          const response = await fetch(apiUrl);
+
+          console.log(response); // Check if the response is being returned
+
+          // Checking if the response is ok
+          if (!response.ok) {
+            throw new Error(
+              "Network response was not ok " + response.statusText
+            );
+          }
+
+          // Parsing the JSON response
+          const data = await response.json();
+
+          // Targeting the container to display the data
+          const dataContainer = document.getElementById("data-container");
+
+          // Looping through the data and displaying it
+          data.forEach((item) => {
+            const postElement = document.createElement("div");
+            postElement.classList.add("post");
+            postElement.innerHTML = `
+                        <h3>${item.title}</h3>
+                    `;
+            dataContainer.appendChild(postElement);
+          });
+        } catch (error) {
+          console.error("Error fetching data: ", error);
+        }
+      }
+
+      // Call the fetchData function when the page loads
+      window.onload = fetchData;
+    </script>
+  </body>
+</html>
